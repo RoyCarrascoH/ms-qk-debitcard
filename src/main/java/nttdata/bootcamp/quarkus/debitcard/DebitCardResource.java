@@ -39,7 +39,7 @@ public class DebitCardResource {
     @POST
     @Transactional
     public Response createDebitCard(DebitCard DebitCard) {
-        if (DebitCard.getIdDebitCard() != null) {
+        if (DebitCard.getDebitCardNumber() != null) {
             throw new WebApplicationException("Id was invalidly set on request.", 422);
         }
         service.save(DebitCard);
@@ -50,7 +50,7 @@ public class DebitCardResource {
     @Path("{idDebitCard}")
     @Transactional
     public DebitCard updateDebitCard(@PathParam("idDebitCard") Long idDebitCard, DebitCard DebitCard) {
-        if (DebitCard.getCardNumber() == null) {
+        if (DebitCard.getDebitCardNumber() == null) {
             throw new WebApplicationException("DebitCard number account was not set on request.", 422);
         }
         DebitCard entity = service.findById(idDebitCard);

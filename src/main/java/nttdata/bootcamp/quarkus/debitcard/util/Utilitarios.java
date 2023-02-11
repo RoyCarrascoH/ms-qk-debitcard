@@ -9,7 +9,7 @@ public class Utilitarios {
 
     public static DebitCard saveDebitCard(DebitCard entity, DebitCard debitCard) {
 
-        entity.setCardNumber(debitCard.getCardNumber());
+        entity.setDebitCardNumber(debitCard.getDebitCardNumber());
         entity.setPin(debitCard.getPin());
         entity.setExpirationDate(debitCard.getExpirationDate());
         entity.setValidationCode(debitCard.getValidationCode());
