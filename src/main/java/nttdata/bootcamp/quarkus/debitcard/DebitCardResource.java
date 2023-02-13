@@ -10,6 +10,8 @@ import nttdata.bootcamp.quarkus.debitcard.dto.DebitCardResponse;
 import nttdata.bootcamp.quarkus.debitcard.dto.ResponseBase;
 import nttdata.bootcamp.quarkus.debitcard.entity.DebitCard;
 import nttdata.bootcamp.quarkus.debitcard.util.Utilitarios;
+import org.eclipse.microprofile.faulttolerance.Retry;
+import org.eclipse.microprofile.faulttolerance.Timeout;
 import org.jboss.logging.Logger;
 
 import java.util.List;
@@ -24,6 +26,7 @@ public class DebitCardResource {
     private DebitCardService service;
 
     @GET
+    @Timeout(180)//Prevenir el uso de recursos
     public DebitCardResponse getDebitCards() {
         DebitCardResponse debitCardsResponse = new DebitCardResponse();
         List<DebitCard> debitCards = service.listAll();
@@ -45,6 +48,7 @@ public class DebitCardResource {
 
     @GET
     @Path("{idDebitCard}")
+    @Retry(maxRetries = 4)//Reintentos antes fallos
     public DebitCard viewDebitCardDetails(@PathParam("idDebitCard") Long idDebitCard) {
         DebitCard entity = service.findById(idDebitCard);
         if (entity == null) {
@@ -76,6 +80,7 @@ public class DebitCardResource {
     @DELETE
     @Path("{idDebitCard}")
     @Transactional
+    //@Fallback(fallbackMethod = "mombre-metodo") //Cuando falla un metodo llama a otro metodo
     public ResponseBase delete(@PathParam("idDebitCard") Long idDebitCard) {
         ResponseBase response = new ResponseBase();
         DebitCard entity = service.findById(idDebitCard);
@@ -91,5 +96,7 @@ public class DebitCardResource {
 
         return response;
     }
+
+
 
 }
