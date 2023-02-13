@@ -6,6 +6,8 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import nttdata.bootcamp.quarkus.debitcard.application.DebitCardService;
+import nttdata.bootcamp.quarkus.debitcard.dto.DebitCardResponse;
+import nttdata.bootcamp.quarkus.debitcard.dto.ResponseBase;
 import nttdata.bootcamp.quarkus.debitcard.entity.DebitCard;
 import nttdata.bootcamp.quarkus.debitcard.util.Utilitarios;
 import org.jboss.logging.Logger;
@@ -22,8 +24,23 @@ public class DebitCardResource {
     private DebitCardService service;
 
     @GET
-    public List<DebitCard> getDebitCards() {
-        return service.listAll();
+    public DebitCardResponse getDebitCards() {
+        DebitCardResponse debitCardsResponse = new DebitCardResponse();
+        List<DebitCard> debitCards = service.listAll();
+        if (debitCards == null) {
+            debitCardsResponse.setCodigoRespuesta(2);
+            debitCardsResponse.setMensajeRespuesta("Respuesta nula");
+            debitCardsResponse.setDebitCards(null);
+        } else if (debitCards.size() == 0) {
+            debitCardsResponse.setCodigoRespuesta(1);
+            debitCardsResponse.setMensajeRespuesta("No existen tarjetas de debido");
+            debitCardsResponse.setDebitCards(debitCards);
+        } else {
+            debitCardsResponse.setCodigoRespuesta(0);
+            debitCardsResponse.setMensajeRespuesta("Respuesta Exitosa");
+            debitCardsResponse.setDebitCards(debitCards);
+        }
+        return debitCardsResponse;
     }
 
     @GET
@@ -39,9 +56,6 @@ public class DebitCardResource {
     @POST
     @Transactional
     public Response createDebitCard(DebitCard DebitCard) {
-        if (DebitCard.getDebitCardNumber() != null) {
-            throw new WebApplicationException("Id was invalidly set on request.", 422);
-        }
         service.save(DebitCard);
         return Response.ok(DebitCard).status(200).build();
     }
@@ -50,9 +64,6 @@ public class DebitCardResource {
     @Path("{idDebitCard}")
     @Transactional
     public DebitCard updateDebitCard(@PathParam("idDebitCard") Long idDebitCard, DebitCard DebitCard) {
-        if (DebitCard.getDebitCardNumber() == null) {
-            throw new WebApplicationException("DebitCard number account was not set on request.", 422);
-        }
         DebitCard entity = service.findById(idDebitCard);
         if (entity == null) {
             throw new WebApplicationException("DebitCard with id of " + idDebitCard + " does not exist.", 404);
@@ -65,13 +76,20 @@ public class DebitCardResource {
     @DELETE
     @Path("{idDebitCard}")
     @Transactional
-    public Response delete(@PathParam("idDebitCard") Long idDebitCard) {
+    public ResponseBase delete(@PathParam("idDebitCard") Long idDebitCard) {
+        ResponseBase response = new ResponseBase();
         DebitCard entity = service.findById(idDebitCard);
         if (entity == null) {
-            throw new WebApplicationException("DebitCard with id of " + idDebitCard + " does not exist.", 404);
+            response.setCodigoRespuesta(1);
+            response.setMensajeRespuesta("Id de debitCard no existe");
+            throw new WebApplicationException("DebiCard with id of " + idDebitCard + " does not exist.", 404);
+        } else {
+            response.setCodigoRespuesta(0);
+            response.setMensajeRespuesta("Eliminacion exitosa de debitCard id = " + idDebitCard);
+            service.delete(entity.getIdDebitCard());
         }
-        service.delete(entity.getIdDebitCard());
-        return Response.status(200).build();
+
+        return response;
     }
 
 }

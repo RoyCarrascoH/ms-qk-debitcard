@@ -13,6 +13,8 @@ public class Utilitarios {
         entity.setPin(debitCard.getPin());
         entity.setExpirationDate(debitCard.getExpirationDate());
         entity.setValidationCode(debitCard.getValidationCode());
+        entity.setBankAccount(debitCard.getBankAccount());
+        entity.setClient(debitCard.getClient());
         return entity;
     }
 

@@ -7,8 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -26,6 +24,7 @@ public class BankAccount extends PanacheEntityBase {
     private Date openingDate;
     private String description;
     private Double amount;
+    private String mainAccount;
     //@ManyToOne
     //private Set<BankAccount> bankAccounts = new HashSet<>();
 
