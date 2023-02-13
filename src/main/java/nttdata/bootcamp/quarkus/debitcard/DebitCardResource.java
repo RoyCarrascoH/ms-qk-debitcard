@@ -23,6 +23,7 @@ import java.util.List;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class DebitCardResource {
+
     private static final Logger LOGGER = Logger.getLogger(DebitCardResource.class.getName());
 
     @Inject
@@ -67,7 +68,12 @@ public class DebitCardResource {
     @Transactional
     public Response createDebitCard(DebitCard debitCard) {
         if(debitCard.getBankAccount().getIdBankAccount()!=null){
-            bankAccountApi.updateMainAccount(debitCard.getBankAccount().getIdBankAccount(), "1");
+            try {
+                bankAccountApi.updateMainAccount(debitCard.getBankAccount().getIdBankAccount(), "1");
+            }catch (BadRequestException e){
+                LOGGER.infof("Error al invocar  el Microservicio bank-account" + e.getMessage());
+            }
+
         }
         service.save(debitCard);
         return Response.ok(debitCard).status(200).build();
