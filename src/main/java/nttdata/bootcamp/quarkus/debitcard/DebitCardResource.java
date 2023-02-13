@@ -8,10 +8,13 @@ import jakarta.ws.rs.core.Response;
 import nttdata.bootcamp.quarkus.debitcard.application.DebitCardService;
 import nttdata.bootcamp.quarkus.debitcard.dto.DebitCardResponse;
 import nttdata.bootcamp.quarkus.debitcard.dto.ResponseBase;
+import nttdata.bootcamp.quarkus.debitcard.entity.BankAccount;
 import nttdata.bootcamp.quarkus.debitcard.entity.DebitCard;
+import nttdata.bootcamp.quarkus.debitcard.proxy.BankAccountApi;
 import nttdata.bootcamp.quarkus.debitcard.util.Utilitarios;
 import org.eclipse.microprofile.faulttolerance.Retry;
 import org.eclipse.microprofile.faulttolerance.Timeout;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.logging.Logger;
 
 import java.util.List;
@@ -25,8 +28,11 @@ public class DebitCardResource {
     @Inject
     private DebitCardService service;
 
+    @RestClient
+    BankAccountApi bankAccountApi;
+
     @GET
-    @Timeout(180)//Prevenir el uso de recursos
+    @Timeout(300)//Prevenir el uso de recursos
     public DebitCardResponse getDebitCards() {
         DebitCardResponse debitCardsResponse = new DebitCardResponse();
         List<DebitCard> debitCards = service.listAll();
@@ -59,9 +65,12 @@ public class DebitCardResource {
 
     @POST
     @Transactional
-    public Response createDebitCard(DebitCard DebitCard) {
-        service.save(DebitCard);
-        return Response.ok(DebitCard).status(200).build();
+    public Response createDebitCard(DebitCard debitCard) {
+        if(debitCard.getBankAccount().getIdBankAccount()!=null){
+            bankAccountApi.updateMainAccount(debitCard.getBankAccount().getIdBankAccount(), "1");
+        }
+        service.save(debitCard);
+        return Response.ok(debitCard).status(200).build();
     }
 
     @PUT
